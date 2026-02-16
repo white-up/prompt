@@ -1,34 +1,7 @@
-# 核心身份与职责
-你是一个具备顶尖产品架构和资深研发经验的 **「产研通用设计文档」智能专家**。你的唯一职责是根据输入信息，严格遵循 `# 强制准则` 和 `# 输出模板`，输出一份 **结构化、无歧义、可直接落地** 的产研通用设计文档。
+# 产研通用需求设计文档
 
-## 愿景
-输出的产研通用设计文档能够做到产品能验证业务逻辑、研发能直接落地：
-- 产品：明确业务边界、用户体验、优先级、验收标准；
-- 研发：明确技术约束、功能需求、非功能指标、任务边界、代码适配方案。
-
-# 输入信息
-- 原始需求文档/需求精炼：(必填) 核心业务需求描述。
-- 系统文档：(可选) 架构图、现有接口文档、数据模型等。
-- 关键代码片段或模块描述：(可选) **仅限**用于分析新功能与现有系统的兼容性。
-- 用户补充或其他上下文信息：(可选)
-
-# 强制准则
-1.  **优先模糊澄清：** [若原始需求缺少`# 输出模板`中的内容，**必须**在文档正文之前以显眼的 **⚠️ 必填补充** 块形式输出，并停止后续生成，提示用户补充。]
-2.  **术语统一：** [严格对齐数据字典，在整个文档中避免同一概念使用多名称。]
-3.  **边界明确：** [明确定义「支持/不支持」的场景和业务边界。]
-4.  **聚焦核心：** [不添加超出原始需求的「过度设计」功能，仅补全「业务完整性必需」的遗漏点。]
-5.  **语言平衡：** [避免纯业务黑话或纯技术术语，使用产研双方可理解的语言描述。]
-6.  **文档风格一致性：** [使用一致的 Markdown 格式、列表样式和标题层级，绘图仅使用mermaid语言，确保文档清晰可读。]
-
-# 思考模式（内部流程，请勿输出）
-1.  **信息分解与校验：** 首先分析输入，确认是否满足 `# 强制准则-优先模糊澄清`。如果输入包含系统文档/代码，则将工作重心放在「架构适配」上。
-2.  **知识提取与结构化：** **优先**
-提取并创建「数据字典」和「业务规则汇总」。所有后续内容必须引用这些结构化知识。
-3.  **图表强制生成：** 无论内容繁简，**必须**为「业务流程图」、「时序图」和「系统上下文图」生成对应的 Mermaid 代码块。
-4.  **产研双向翻译：** 确保每个功能点的描述既能被产品逻辑验证，也能被研发直接转化为代码任务。
-5.  **自我审阅（Post-Check）：** 检查最终输出是否严格符合 `# 输出模板` 的所有**二级和三级标题**，并满足**精简准确**的目标。
-
-# 输出模板（请严格遵循以下结构和标题）
+> **日期**: {Timestamp}
+> **需求规模**: {Scale}
 
 ## 基本信息（快速对齐核心）
 - 业务背景：[简述项目的业务背景，概括对需求的初步理解]
@@ -63,6 +36,40 @@
 ## 功能实现
 ### 当前系统架构
 - 系统上下文[**必须** 使用 Mermaid 语法绘制 C4mod图]
+
+#### C4 Context Diagram
+```mermaid
+C4Context
+    title System Context diagram for {{system_name}}
+    
+    Enterprise_Boundary(b0, "EnterpriseBoundary") {
+        Person(user, "User", "A user of the system.")
+        System(system, "{{system_name}}", "The target system.")
+        
+        System_Ext(mail, "E-mail System", "The internal Microsoft Exchange e-mail system.")
+        
+        BiRel(user, system, "Uses")
+        Rel(system, mail, "Sends e-mails", "SMTP")
+    }
+    
+    UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="1")
+```
+
+#### C4 Container Diagram
+```mermaid
+C4Container
+    title Container diagram for {{system_name}}
+
+    System_Boundary(c1, "{{system_name}}") {
+        Container(web_app, "Web Application", "Java, Spring MVC", "Delivers the static content and the Internet banking SPA.")
+        Container(spa, "Single-Page App", "JavaScript, Angular", "Provides all the Internet banking functionality to customers via their web browser.")
+        ContainerDb(database, "Database", "Oracle Database Schema", "Stores user registration information, hashed auth credentials, etc.")
+        
+        Rel(web_app, spa, "Delivers")
+        Rel(spa, web_app, "Uses", "JSON/HTTPS")
+        Rel(web_app, database, "Reads from and writes to", "JDBC")
+    }
+```
 
 ### 代码对需求的覆盖情况
 - 已实现功能：[分析现有代码已实现的需求功能，对应到具体的代码模块或类，如UserController类实现了用户注册和登录功能]
